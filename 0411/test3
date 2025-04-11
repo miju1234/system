@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "Katie checked in 10 days ago"
+echo "Jessica checked in 5 days ago"
+
+

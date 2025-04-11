@@ -1,0 +1,4 @@
+#!/bin/bash
+value=$((5 + 5))
+echo "The resulting value is $value"
+
