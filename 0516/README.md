@@ -155,65 +155,65 @@ int lockf(int fd, int cmd, off_t len);
   ```bash
   $ chmod 2644 file  # SGID 비트 설정 + 그룹 실행 권한 제거
 
-# 🧠 Chapter 8: 프로세스 (Processes)
 
+
+---
+# 🧠 Chapter 8: 프로세스 요약
 
 ---
 
 ## 🐚 8.1 쉘과 프로세스
 
-- **쉘(Shell)**: 사용자와 커널 사이의 명령어 인터페이스 (command processor)
-- **전면 처리**: 명령 실행이 완료될 때까지 대기
-- **후면 처리**: `&` 사용 → 명령 실행 중에도 쉘 조작 가능  
-  예: `sleep 5 &`, `jobs`, `fg %1`
-
+- **쉘(Shell)**: 사용자와 운영체제 사이의 명령어 인터페이스 역할을 수행
+- **전면 처리**: 실행이 끝날 때까지 쉘이 대기
+- **후면 처리**: `&`를 이용해 백그라운드로 실행, `jobs`, `fg %n`으로 제어 가능
 - **프로세스(process)**: 실행 중인 프로그램
-  - `ps`, `ps -ef`, `ps aux` 등으로 상태 확인
+  - `ps`, `ps -ef`, `ps aux` 등으로 프로세스 상태 확인 가능
 
 ---
 
 ## 🛠 8.2 프로그램 실행
 
-- **exec**: 다른 프로그램을 실행 (현재 프로세스 대체)
+- **`exec` 시스템 호출**: 현재 프로세스를 새로운 프로그램으로 대체
 - `main(int argc, char *argv[])`: 명령줄 인수 전달
-- 환경 변수 확인: `environ`, `getenv("VAR_NAME")`
-- 환경 변수 설정/삭제:
-  ```c
-  setenv("VAR", "value", 1);
-  unsetenv("VAR");
-
-### ❌ 8.3 프로그램 종료
-
-#### ✅ 정상 종료
-- `return` in `main()`: main 함수 종료
-- `exit()`: 버퍼 비우고 파일 닫고 정리 후 종료
-- `_exit()`: 정리 없이 즉시 종료
-
-#### ❌ 비정상 종료
-- `abort()`
-- 시그널에 의한 강제 종료
-
-#### 🧩 exit 처리기
-- `atexit(func)`: 종료 시 자동 실행될 함수 등록 (최대 32개)
+- 환경 변수:
+  - 전체 보기: `environ`, `getenv()`
+  - 설정/삭제: `setenv()`, `unsetenv()`, `putenv()`
 
 ---
 
-### 🧾 8.4 프로세스 ID와 사용자 ID
+## ❌ 8.3 프로그램 종료
 
-#### 🔹 프로세스 ID
-- `getpid()`: 자신의 프로세스 ID(PID) 반환
-- `getppid()`: 부모 프로세스의 ID 반환
+### ✅ 정상 종료
+- `return` in `main()`
+- `exit()`: 출력 버퍼 flush, 파일 닫고 종료
+- `_exit()`: 정리 없이 즉시 종료
 
-#### 🔹 사용자/그룹 ID
+### ❌ 비정상 종료
+- `abort()`, 시그널에 의한 종료
+
+### 🧩 exit 처리기
+- `atexit(func)`: 종료 시 호출될 함수 등록 (최대 32개)
+
+---
+
+## 🧾 8.4 프로세스 ID와 사용자 ID
+
+### 🔹 프로세스 ID
+- `getpid()`: 현재 프로세스 ID
+- `getppid()`: 부모 프로세스 ID
+
+### 🔹 사용자/그룹 ID
 - `getuid()`, `geteuid()`: 실제/유효 사용자 ID
 - `getgid()`, `getegid()`: 실제/유효 그룹 ID
 
-#### 🔹 set-user-ID 실행 파일
-- 실행 시 유효 사용자 ID가 **파일 소유자 ID로 변경됨**
-- 예: `/usr/bin/passwd` (root 권한으로 실행)
-- 설정 명령어:
-  ```bash
-  chmod 4755 file
+### 🔹 Set-user-ID 실행 파일
+- 실행 시 유효 사용자 ID가 파일 소유자로 변경됨  
+  예: `/usr/bin/passwd` → root 권한 획득
+
+```bash
+chmod 4755 file  # set-user-ID 설정
+
 ### 🧱 8.5 프로세스 이미지
 
 #### 📦 프로세스 메모리 구성
@@ -233,5 +233,3 @@ int lockf(int fd, int cmd, off_t len);
 - 프로세스는 고유의 **PID, UID, GID**를 가지고 실행됨
 - 프로세스 메모리 구조는 **텍스트, 데이터, 힙, 스택, U-영역**으로 구성됨
 - 사용자/그룹 ID는 **파일 접근 권한 제어에 핵심적인 역할**을 함
-
-
