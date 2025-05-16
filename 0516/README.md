@@ -156,6 +156,7 @@ int lockf(int fd, int cmd, off_t len);
   $ chmod 2644 file  # SGID 비트 설정 + 그룹 실행 권한 제거
 
 ---
+---
 
 # 📘 Chapter 8: 프로세스
 
@@ -165,11 +166,158 @@ int lockf(int fd, int cmd, off_t len);
 
 ### 🐚 쉘(Shell)이란?
 
-- 사용자와 운영체제 사이의 인터페이스
-- 명령어 처리기 역할 수행
+* 사용자와 운영체제 사이의 인터페이스
+* 명령어 처리기 역할 수행
 
 ### 📘 복합 명령어 & 그룹
 
 ```bash
 $ 명령어1; 명령어2; ...
 $ (명령어1; 명령어2; ...) > 파일
+```
+
+### 🔁 전면/후면 처리
+
+* 전면 처리: 명령 실행 완료까지 쉘 대기
+* 후면 처리: `명령어 &`로 백그라운드 실행
+
+```bash
+$ (sleep 100; echo done) &
+$ find . -name test.c -print &
+$ jobs
+$ fg %1
+```
+
+### 🧠 프로세스 정의
+
+* 실행 중인 프로그램
+* PID(Process ID) 부여됨
+
+```bash
+$ ps
+$ ps u
+$ ps -aux  # BSD
+$ ps -ef   # System V
+```
+
+---
+
+## 8.2 프로그램 실행
+
+### 🚀 exec 시스템 호출
+
+* `exec()`로 새로운 프로그램 실행
+* 인수 및 환경 변수 전달
+
+### 📌 main 함수 정의
+
+```c
+int main(int argc, char *argv[]);
+```
+
+### 🧪 명령줄 인수 출력 예
+
+```c
+for (int i = 0; i < argc; i++)
+    printf("argv[%d]: %s\n", i, argv[i]);
+```
+
+### 🌍 환경 변수 접근
+
+```c
+extern char **environ;
+for (char **ptr = environ; *ptr != NULL; ptr++)
+    printf("%s\n", *ptr);
+
+char *getenv("HOME");
+```
+
+### ⚙️ 환경 변수 설정
+
+```c
+putenv("NAME=value");
+setenv("NAME", "value", 1);
+unsetenv("NAME");
+```
+
+---
+
+## 8.3 프로그램 종료
+
+### ✅ 정상 종료
+
+* `main()` → `exit()`
+* 또는 직접 `exit()` / `_exit()` 호출
+
+### ❌ 비정상 종료
+
+* `abort()` 호출
+* 시그널에 의한 종료
+
+### 🧹 정리 차이
+
+* `exit()` → 스트림 닫고 버퍼 플러시
+* `_exit()` → 정리 없이 종료
+
+### 🧼 atexit 처리기 등록
+
+```c
+atexit(func);  // 최대 32개 등록 가능
+```
+
+---
+
+## 8.4 프로세스 ID와 사용자 ID
+
+### 🆔 프로세스 ID
+
+```c
+getpid();   // 내 PID
+getppid();  // 부모 PID
+```
+
+### 👤 사용자 및 그룹 ID
+
+```c
+getuid();    geteuid();   // 실제 / 유효 사용자 ID
+getgid();    getegid();   // 실제 / 유효 그룹 ID
+```
+
+### 🧑‍💼 setuid / setgid 설정
+
+```c
+setuid(uid);     seteuid(uid);
+setgid(gid);     setegid(gid);
+```
+
+### 🔐 set-user-ID 실행권한
+
+* `chmod 4755 파일`
+* 실행자 → 파일 소유자 권한 획득
+
+```bash
+$ ls -l /usr/bin/passwd
+-rwsr-xr-x 1 root root ...
+```
+
+---
+
+## 8.5 프로세스 이미지
+
+### 🧱 프로세스 메모리 구조
+
+* **Text**: 실행 코드
+* **Data**: 전역 및 static 변수
+* **Heap**: 동적 메모리 (malloc)
+* **Stack**: 함수 호출 스택
+* **U-Area**: 열린 파일, 디렉터리 등
+
+---
+
+## 🧩 핵심 요약
+
+* 프로세스는 실행 중인 프로그램
+* 쉘은 명령어를 받아 실행하는 인터페이스
+* `exec`로 실행, `exit`로 종료 시 정리
+* 사용자/그룹 ID에 따라 권한 결정
+* 프로세스 메모리는 text/data/heap/stack 구성
