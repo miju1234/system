@@ -1,22 +1,44 @@
-// 34. ln.c
 #include <stdio.h>
 #include <unistd.h>
-// 하드 링크 또는 심볼릭 링크 생성
+#include <getopt.h>
+
+// ln 명령어: 링크 생성
+// 옵션: -s (심볼릭 링크 생성)
 int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        printf("Usage: %s <target> <linkname> [symbolic]\n", argv[0]);
+    int opt;
+    int symbolic = 0;
+
+    // 옵션 파싱
+    while ((opt = getopt(argc, argv, "s")) != -1) {
+        switch (opt) {
+            case 's':
+                symbolic = 1;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [-s] target link_name\n", argv[0]);
+                return 1;
+        }
+    }
+
+    if (optind + 1 >= argc) {
+        fprintf(stderr, "Usage: %s [-s] target link_name\n", argv[0]);
         return 1;
     }
-    if (argc == 4 && strcmp(argv[3], "symbolic") == 0) {
-        if (symlink(argv[1], argv[2]) != 0) {
-            perror("symlink");
-            return 1;
-        }
+
+    const char *target = argv[optind];
+    const char *link_name = argv[optind + 1];
+
+    int result;
+    if (symbolic) {
+        result = symlink(target, link_name);
     } else {
-        if (link(argv[1], argv[2]) != 0) {
-            perror("link");
-            return 1;
-        }
+        result = link(target, link_name);
     }
+
+    if (result != 0) {
+        perror("link");
+        return 1;
+    }
+
     return 0;
 }
