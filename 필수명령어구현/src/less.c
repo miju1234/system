@@ -1,12 +1,48 @@
-// 26. less.c
 #include <stdio.h>
-// 페이지 출력 및 이전 페이지 가능 (간단)
+#include <stdlib.h>
+#include <getopt.h>
+
+// less 명령어: 페이지 단위 출력 및 이전 페이지 가능 (간단)
+// 옵션: -n <줄 수> (한 페이지에 출력할 줄 수)
 int main(int argc, char *argv[]) {
-    if (argc != 2) { printf("Usage: %s <file>\n", argv[0]); return 1; }
-    FILE *fp = fopen(argv[1], "r"); if (!fp) { perror("fopen"); return 1; }
-    char line[1024]; int count=0;
-    while (fgets(line, sizeof(line), fp)) {
-        printf("%s", line); if (++count%20==0) { printf("--Less--"); getchar(); }
+    int opt;
+    int page_size = 20;
+
+    // 옵션 파싱
+    while ((opt = getopt(argc, argv, "n:")) != -1) {
+        switch (opt) {
+            case 'n':
+                page_size = atoi(optarg);
+                if (page_size <= 0) page_size = 20;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [-n lines] file\n", argv[0]);
+                return 1;
+        }
     }
-    fclose(fp); return 0;
+
+    if (optind >= argc) {
+        fprintf(stderr, "Usage: %s [-n lines] file\n", argv[0]);
+        return 1;
+    }
+
+    FILE *fp = fopen(argv[optind], "r");
+    if (!fp) {
+        perror("fopen");
+        return 1;
+    }
+
+    char line[1024];
+    int count = 0;
+    while (fgets(line, sizeof(line), fp)) {
+        printf("%s", line);
+        if (++count % page_size == 0) {
+            printf("--Less-- (Enter to continue, q to quit): ");
+            int c = getchar();
+            if (c == 'q' || c == 'Q') break;
+        }
+    }
+
+    fclose(fp);
+    return 0;
 }
