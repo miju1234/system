@@ -1,16 +1,38 @@
-// 43. umount.c
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mount.h>
-// 파일 시스템 마운트 해제
+#include <unistd.h>
+#include <getopt.h>
+
+// umount 명령어: 파일 시스템 마운트 해제
+// 옵션: -f (강제 해제)
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        printf("Usage: %s <target>\n", argv[0]);
+    int opt;
+    int force = 0;
+
+    while ((opt = getopt(argc, argv, "f")) != -1) {
+        switch (opt) {
+            case 'f':
+                force = 1;
+                break;
+            default:
+                fprintf(stderr, "Usage: %s [-f] target\n", argv[0]);
+                return 1;
+        }
+    }
+
+    if (optind >= argc) {
+        fprintf(stderr, "Usage: %s [-f] target\n", argv[0]);
         return 1;
     }
-    if (umount(argv[1]) != 0) {
-        perror("umount");
+
+    const char *target = argv[optind];
+
+    if (umount2(target, force ? MNT_FORCE : 0) != 0) {
+        perror("umount2");
         return 1;
     }
-    printf("Unmounted %s\n", argv[1]);
+
+    printf("Unmounted %s\n", target);
     return 0;
 }
