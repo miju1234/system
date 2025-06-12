@@ -1,8 +1,8 @@
-# 🔧 Chapter 9: 프로세스 제어와 관련 시스템 호출 요약
+# 🔧 프로세스 제어와 관련 시스템 호출 요약
 
 ---
 
-## 🔹 9.1 fork() 시스템 호출
+## 🔹1. fork() 시스템 호출
 
 - 부모 프로세스가 호출 시 **자식 프로세스 복사 생성**
 - 호출 결과:
@@ -19,7 +19,7 @@ else if (pid == 0) printf("자식");
 
 ---
 
-## 🔹 9.2 wait() / waitpid()
+## 🔹 2. wait() / waitpid()
 
 - 부모가 자식의 종료를 기다릴 때 사용
 - `wait(&status)` : 자식 종료 대기
@@ -31,7 +31,7 @@ else if (pid == 0) printf("자식");
 
 ---
 
-## 🔹 9.3 exec() 함수군
+## 🔹 3. exec() 함수군
 
 - 현재 프로세스를 **새 프로그램으로 덮어씀**
 - 종류: `execl`, `execv`, `execle`, `execvp`, `execvpe`
@@ -45,14 +45,14 @@ execvp("ls", argv);
 
 ---
 
-## 🔹 9.4 system() 호출
+## 🔹 4. system() 호출
 
 - 명령어 문자열을 해석하여 `sh`로 실행
 - 내부적으로 `fork()` + `exec()` + `wait()` 조합
 
 ---
 
-## 🔹 9.5 입출력 재지정
+## 🔹 5. 입출력 재지정
 
 - 파일 디스크립터 조작하여 stdin, stdout 변경
 - `dup2(fd, 1)`: 파일 fd를 표준출력으로 연결
@@ -67,7 +67,7 @@ execlp("ls", "ls", NULL);
 
 ---
 
-## 🔹 9.6 프로세스 그룹과 세션
+## 🔹 6. 프로세스 그룹과 세션
 
 - `getpid()`, `getppid()`: PID, 부모 PID
 - `getpgid(pid)`, `setpgid(pid, pgid)`: 그룹 제어
